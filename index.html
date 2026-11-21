@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jazz Charts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { --bg: #f7f8fa; --paper: #fff; --ink: #17202b; --muted: #5d6877; --line: #d5dbe3; --accent: #1f4e79; }
+@media (prefers-color-scheme: dark) { :root { --bg: #11161d; --paper: #1a212b; --ink: #e6ebf1; --muted: #9aa5b3; --line: #2f3a47; --accent: #8cb8e6; color-scheme: dark; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 "IBM Plex Sans", system-ui, sans-serif; padding: 40px max(16px, env(safe-area-inset-left, 0px)); }
+main { max-width: 640px; margin: 0 auto; display: grid; gap: 20px; }
+h1 { font: 700 2.4rem "Kalam", "Segoe Print", cursive; margin: 0; }
+p { margin: 0; color: var(--muted); }
+ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+a.song { display: block; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; color: var(--ink); text-decoration: none; }
+a.song:hover, a.song:focus-visible { border-color: var(--accent); outline: none; }
+a.song b { font: 700 1.4rem "Kalam", "Segoe Print", cursive; display: block; }
+a.song span { color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Jazz Charts</h1>
+  <p>Guitar charts with movable shell voicings. Pick a key and your shapes, paste in the lyrics, and print a one-page cheat sheet.</p>
+  <ul>
+    <li><a class="song" href="/april/"><b>I'll Remember April</b><span>48 bars, A – Bridge – A · any key from G to F</span></a></li>
+  </ul>
+</main>
+</body>
+</html>
