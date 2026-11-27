@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Girl from Ipanema Voicings</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+/* Layout: lead-sheet bar grid with a shape clicker in every bar; one-page cheat sheet preview below; print = full chart (3 pages) or cheat sheet (1 page). */
+:root {
+  --bg: #f7f8fa;
+  --paper: #ffffff;
+  --ink: #17202b;
+  --muted: #5d6877;
+  --line: #d5dbe3;
+  --accent: #1f4e79;
+  --accent-soft: #e3ecf6;
+  --root: #1f4e79;
+  --third: #c26a12;
+  --seventh: #1e7f63;
+  --other: #7b8593;
+  --dot-text: #ffffff;
+  --mute: #c0392b;
+  --display: "Kalam", "Segoe Print", "Comic Sans MS", cursive;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161d; --paper: #1a212b; --ink: #e6ebf1; --muted: #9aa5b3; --line: #2f3a47;
+    --accent: #8cb8e6; --accent-soft: #1f2d3d; --root: #5b93cc; --third: #e0913f; --seventh: #3fae8a;
+    --other: #6d7886; --dot-text: #0d1117; --mute: #e5675a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161d; --paper: #1a212b; --ink: #e6ebf1; --muted: #9aa5b3; --line: #2f3a47;
+  --accent: #8cb8e6; --accent-soft: #1f2d3d; --root: #5b93cc; --third: #e0913f; --seventh: #3fae8a;
+  --other: #6d7886; --dot-text: #0d1117; --mute: #e5675a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 28px; }
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+h1 { font-family: var(--display); font-size: 2.3rem; line-height: 1.05; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+button {
+  font: 500 0.9rem var(--body); border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  padding: 8px 14px; border-radius: 6px; cursor: pointer;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.keypick { margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.88rem; }
+.keypick label { font-weight: 600; }
+.keypick select { font: 500 0.95rem var(--body); padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+#capoHint { color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.85rem; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+.sw.root { border-radius: 3px; background: var(--root); }
+.sw.third { background: var(--third); } .sw.seventh { background: var(--seventh); } .sw.other { background: var(--other); }
+
+section.sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 12px; }
+.sheet-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: center; }
+.sheet-head h2 { margin: 0; font-size: 1.15rem; color: var(--accent); }
+.sheet-head h2 small { font-weight: 400; color: var(--muted); font-size: 0.95rem; }
+.travel { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.travel b { color: var(--ink); }
+.note { font-size: 0.85rem; color: var(--muted); margin: 0; }
+
+/* Chart */
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.bar { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 8px 8px; display: grid; gap: 2px; min-width: 0; align-content: start; }
+.bar .num { font-size: 0.7rem; color: var(--muted); display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.bar .move { font-weight: 600; }
+.voice { display: grid; gap: 2px; min-width: 0; }
+.voice .sym { font-family: var(--display); font-size: 1.45rem; text-align: center; line-height: 1.1; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pair .sym { font-size: 1.15rem; }
+.voice svg { width: 100%; max-width: 210px; height: auto; display: block; margin: 0 auto; }
+.tab { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); text-align: center; letter-spacing: 0.04em; }
+.clicker { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px; }
+.clicker button { width: 30px; height: 26px; padding: 0; font-size: 1rem; line-height: 1; border-radius: 13px; }
+.clicker button:hover { border-color: var(--accent); color: var(--accent); }
+.clicker .pos { font: 600 0.78rem var(--mono); font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: center; }
+.fam { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 1.1em; }
+.pair .fam { font-size: 0.64rem; }
+
+/* Cheat sheet */
+.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.toggle button { border: 0; border-radius: 0; padding: 7px 12px; background: var(--paper); }
+.toggle button[aria-pressed="true"] { background: var(--accent); color: var(--paper); }
+.paper-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); padding: 12px; }
+.paper { width: 7.6in; margin: 0 auto; background: var(--paper); padding: 0.3in; display: grid; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.cs-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
+.cs-title h3 { font-family: var(--display); font-size: 1.7rem; margin: 0; line-height: 1; }
+.cs-title span { font-size: 0.75rem; color: var(--muted); }
+.cs-lines { display: grid; gap: 0; }
+.cs-row { display: grid; grid-template-columns: 1.6em repeat(8, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.cs-row .lab { font: 700 0.85rem var(--body); color: var(--accent); display: grid; place-items: center; }
+.cs-row .lab.blank { color: transparent; }
+.cs-bar { border-left: 1px solid var(--line); min-width: 0; padding: 3px 4px; display: grid; align-content: start; gap: 1px; }
+.cs-bar.phrase { border-left: 2px solid var(--ink); }
+.cs-bar .n { font-size: 0.55rem; color: var(--muted); }
+.cs-bar .sym { font-family: var(--display); font-size: 1.05rem; text-align: center; line-height: 1.15; white-space: nowrap; }
+.cs-bar .sym.two { font-size: 0.85rem; }
+.cs-bar .alt { font-size: 0.55rem; color: var(--muted); text-align: center; }
+.cs-row.tall .cs-bar { padding-bottom: 4px; }
+.cs-bar svg { width: 100%; height: auto; display: block; }
+.cs-bar .tab { font-size: 0.55rem; }
+.cs-bar .pair { gap: 2px; grid-template-columns: 1fr; }
+.cs-key-h { font: 700 0.8rem var(--body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin: 4px 0 0; }
+.cs-key { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px 8px; }
+.cs-key.tight { grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px 6px; }
+.cs-key .cell { display: grid; gap: 0; text-align: center; }
+.cs-key .sym { font-family: var(--display); font-size: 0.95rem; line-height: 1.1; }
+.cs-key svg { width: 100%; height: auto; display: block; }
+.cs-key .tab { font-size: 0.55rem; }
+.cs-lyr { display: grid; grid-template-columns: 1.6em 1fr 1fr; border-bottom: 1px solid var(--line); align-items: end; }
+.cs-lyr .lab { font: 600 0.55rem var(--body); color: var(--muted); text-align: center; padding-bottom: 3px; }
+.cs-lyr input { font: italic 0.74rem var(--body); color: var(--ink); background: transparent; border: 0; border-bottom: 1px dotted var(--muted);
+  margin: 2px 6px 3px; padding: 1px 2px; min-width: 0; width: calc(100% - 12px); }
+.cs-lyr input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cs-lyr input + input { border-left: 0; }
+.lyr-tools { display: grid; gap: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.lyr-tools label { font-weight: 600; font-size: 0.85rem; }
+.lyr-tools p { margin: 0; font-size: 0.8rem; color: var(--muted); max-width: 70ch; }
+.lyr-tools textarea { width: 100%; min-height: 7.5em; font: 0.85rem var(--body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; resize: vertical; }
+.lyr-tools .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lyr-tools .status { font-size: 0.8rem; color: var(--muted); }
+.cs-foot { font-size: 0.68rem; color: var(--muted); margin: 0; display: grid; gap: 1px; }
+.cs-legend { display: flex; gap: 12px; font-size: 0.62rem; color: var(--muted); flex-wrap: wrap; }
+.cs-legend .sw { width: 9px; height: 9px; }
+
+.book { display: grid; gap: 6px; }
+.book-row { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 8px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.book-row .sym { font-family: var(--display); font-size: 1.25rem; line-height: 1.1; }
+.book-row .tones { font-size: 0.68rem; color: var(--muted); }
+.book-opts { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 6px; }
+.bopt { border: 1.5px solid transparent; border-radius: 5px; padding: 3px; background: none; display: grid; gap: 1px; text-align: center; cursor: pointer; font: inherit; color: inherit; min-width: 0; }
+.bopt:hover { border-color: var(--line); }
+.bopt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.bopt svg { width: 100%; height: auto; display: block; }
+.bopt .tab { font-size: 0.6rem; }
+.bopt .bf { font-size: 0.56rem; color: var(--muted); line-height: 1.2; }
+@media (max-width: 720px) { .book-opts { grid-template-columns: repeat(3, minmax(0, 1fr)); } .book-row { grid-template-columns: 1fr; } }
+.print-only { display: none; }
+.ref-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px 8px; }
+.ref-grid .cell { display: grid; gap: 2px; text-align: center; }
+.ref-grid .sym { font-family: var(--display); font-size: 1.1rem; }
+.map { font-size: 0.85rem; margin: 0; padding-left: 1.1em; display: grid; gap: 3px; }
+
+@media (max-width: 720px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  h1 { font-size: 1.9rem; }
+}
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fff; --paper: #fff; --ink: #000; --muted: #555; --line: #999; --accent: #1f4e79; --accent-soft: #fff;
+    --root: #1f4e79; --third: #c26a12; --seventh: #1e7f63; --other: #7b8593; --dot-text: #fff; --mute: #c0392b; color-scheme: light;
+  }
+  @page { size: letter; margin: 0.45in; }
+  body { padding: 0; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print, .clicker, .fam { display: none !important; }
+  .wrap { gap: 0; max-width: none; }
+  h1 { font-size: 22pt; }
+  section.sheet { border: 0; padding: 0; break-after: page; }
+  .grid { grid-template-columns: repeat(4, 1fr) !important; }
+  .bar { padding: 4px 6px; }
+  .voice .sym { font-size: 15pt; }
+  .voice svg { max-height: 1.3in; }
+  .legend { font-size: 9px; }
+  body:not(.print-cheat) #cheat { display: none !important; }
+  body:not(.print-book) #book { display: none !important; }
+  body.print-book .wrap > :not(#book) { display: none !important; }
+  body.print-book #book { display: grid !important; break-after: auto; }
+  body.print-book .book-opts { grid-template-columns: repeat(9, 1fr) !important; }
+  body.print-book .book-row { grid-template-columns: 4.6em 1fr !important; break-inside: avoid; }
+  body.print-book .bopt { padding: 1px; }
+  body:not(.print-cheat) .print-only { display: grid; }
+  body.print-cheat .wrap > :not(#cheat) { display: none !important; }
+  body.print-cheat #cheat { display: block; }
+  body.print-cheat #cheat > :not(.paper-scroll) { display: none !important; }
+  body.print-cheat .paper-scroll { border: 0; padding: 0; overflow: visible; background: none; }
+  body.print-cheat .paper { box-shadow: none; padding: 0; width: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>The Girl from Ipanema</h1>
+      <p class="sub">Key of <span id="keyLabel">F</span> · 40 bars, A – A – Bridge – A · Use ‹ › in any bar to flip through shapes for that chord</p>
+      <div class="keypick no-print"><label for="keySel">Key</label> <select id="keySel"></select>
+        <label for="styleSel">Shapes</label> <select id="styleSel">
+          <option value="barre">Barre chords first (full 6-string shapes)</option>
+          <option value="shells">Shells first: bass + D &amp; G strings (steadiest)</option>
+          <option value="mixed">Mixed: open chords first</option>
+        </select></div>
+      <p class="sub no-print" id="capoHint" style="margin:2px 0 0;font-size:0.85rem"></p>
+    </div>
+    <div class="actions no-print">
+      <button type="button" id="reset">Reset shapes</button>
+      <button type="button" class="primary" id="printFull">Print full chart</button>
+    </div>
+    <div class="legend">
+      <span><i class="sw root"></i>1 (root)</span>
+      <span><i class="sw third"></i>3 / b3</span>
+      <span><i class="sw seventh"></i>7 / b7</span>
+      <span><i class="sw other"></i>5, b5, 6</span>
+      <span>High e on top, low E on the bottom. Numbers under the grid are frets.</span>
+    </div>
+  </header>
+
+  <section class="sheet" id="cheat">
+    <div class="sheet-head no-print">
+      <h2>One-page cheat sheet <small>(uses the shapes picked below)</small></h2>
+      <div class="actions">
+        <div class="toggle" role="group" aria-label="Cheat sheet layout">
+          <button type="button" id="lay3" aria-pressed="true">Chord grid + shape key</button>
+          <button type="button" id="lay4" aria-pressed="false">Diagram in every bar</button>
+        </div>
+        <button type="button" class="primary" id="printCheat">Print cheat sheet</button>
+      </div>
+    </div>
+    <div class="lyr-tools no-print" id="lyrTools">
+      <label for="lyrPaste">Add the lyrics</label>
+      <p>Paste the lyrics you were sent into this box. The lines fill in on the sheet right away and stay saved in this browser. You can also type into any lyric line on the sheet.</p>
+      <textarea id="lyrPaste" spellcheck="false" placeholder="Paste the lyrics here, one line per 4-bar phrase: 2 per A section, 4 for the bridge, then 1 for the tag"></textarea>
+      <div class="row">
+        <button type="button" id="lyrClear">Clear lyrics</button>
+        <span class="status" id="lyrStatus" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="paper-scroll">
+      <div class="paper" id="cs3"></div>
+      <div class="paper" id="cs4" hidden></div>
+    </div>
+  </section>
+
+  <section class="sheet" id="sheetA">
+    <div class="sheet-head">
+      <h2>A sections <small>(two A’s at the top; the first 8 bars come back after the bridge)</small></h2>
+      <span class="travel" id="travelA"></span>
+    </div>
+    <div class="grid" id="gridA"></div>
+    <p class="note" id="noteA"></p>
+  </section>
+
+  <section class="sheet" id="sheetB">
+    <div class="sheet-head">
+      <h2>Bridge</h2>
+      <span class="travel" id="travelB"></span>
+    </div>
+    <div class="grid" id="gridB"></div>
+    <p class="note" id="noteB"></p>
+  </section>
+
+  <section class="sheet print-only" id="sheetRef">
+    <div class="sheet-head"><h2>Your shapes</h2></div>
+    <div class="ref-grid" id="refGrid"></div>
+    <ul class="map" id="refMap"></ul>
+  </section>
+
+  <section class="sheet" id="book">
+    <div class="sheet-head">
+      <h2>Shape book <small id="bookSub"></small></h2>
+      <div class="actions no-print"><button type="button" id="copyPicks">Copy my shapes</button><button type="button" class="primary" id="printBook">Print shape book</button></div>
+    </div>
+    <p class="note no-print">Every shape for every chord in this key. Click one to use it in the chart (same as the ‹ › clicker). <span id="copyStatus" aria-live="polite"></span></p>
+    <textarea id="copyOut" class="no-print" readonly hidden style="width:100%;min-height:4em;font:0.75rem var(--mono)"></textarea>
+    <div id="bookRows" class="book"></div>
+  </section>
+
+</div>
+
+<script id="core">
+const OPEN = [4, 9, 2, 7, 11, 4]; // low E, A, D, G, B, high e
+const IV = {0: "1", 1: "b9", 2: "9", 3: "b3", 4: "3", 5: "4", 6: "b5", 7: "5", 8: "#5", 9: "6", 10: "b7", 11: "7"};
+const TONES = {
+  maj7: ["1", "3", "5", "7"], "6": ["1", "3", "5", "6"], m7: ["1", "b3", "5", "b7"],
+  m6: ["1", "b3", "5", "6"], "7": ["1", "3", "5", "b7"], m7b5: ["1", "b3", "b5", "b7"]
+};
+const SUF = {maj7: "maj7", "6": "6", m7: "m7", m6: "m6", "7": "7", m7b5: "m7♭5"};
+// Movable shape families: offsets per string (low E..high e) from the root fret on the root string.
+const FAM = {
+  shell6: {name: "Shell · root on E", rs: 0, t: {
+    maj7: [0, null, 1, 1, null, null], "7": [0, null, 0, 1, null, null], m7: [0, null, 0, 0, null, null],
+    "6": [0, null, -1, 1, null, null], m6: [0, null, -1, 0, null, null], m7b5: [0, null, 0, 0, -1, null]}},
+  shell5: {name: "Shell · root on A", rs: 1, t: {
+    maj7: [null, 0, -1, 1, null, null], "7": [null, 0, -1, 0, null, null], m7: [null, 0, -2, 0, null, null],
+    "6": [null, 0, -1, -1, null, null], m6: [null, 0, -2, -1, null, null], m7b5: [null, 0, 1, 0, 1, null]}},
+  skip5: {name: "Skip-string · root on A", t: {
+    maj7: [null, 0, null, 1, 2, null], "7": [null, 0, null, 0, 2, null], m7: [null, 0, null, 0, 1, null],
+    "6": [null, 0, null, -1, 2, null], m6: [null, 0, null, -1, 1, null], m7b5: [null, 0, null, 0, 1, -1]}},
+  barreE: {name: "Barre · root on E", t: {
+    maj7: [0, null, 1, 1, 0, null], "7": [0, 2, 0, 1, 0, 0], m7: [0, 2, 0, 0, 0, 0],
+    "6": [0, null, -1, 1, 0, null], m6: [0, null, -1, 0, 0, null], m7b5: [0, null, 0, 0, -1, null]}},
+  barreA: {name: "Barre · root on A", rs: 1, t: {
+    maj7: [null, 0, 2, 1, 2, 0], "7": [null, 0, 2, 0, 2, 0], m7: [null, 0, 2, 0, 1, 0],
+    "6": [null, 0, 2, 2, 2, 2], m6: [null, 0, 2, -1, 1, null], m7b5: [null, 0, 1, 0, 1, null]}},
+  bE: {name: "Barre · root on E", rs: 0, t: {
+    maj7: [0, 2, 1, 1, 0, 0], "7": [0, 2, 0, 1, 0, 0], m7: [0, 2, 0, 0, 0, 0],
+    "6": [0, 2, 2, 1, 2, 0], m6: [0, 2, 2, 0, 2, 0], m7b5: [0, null, 0, 0, -1, null]}},
+  droot: {name: "Top 4 · root on D", rs: 2, t: {
+    maj7: [null, null, 0, 2, 2, 2], "7": [null, null, 0, 2, 1, 2], m7: [null, null, 0, 2, 1, 1],
+    "6": [null, null, 0, 2, 0, 2], m6: [null, null, 0, 2, 0, 1], m7b5: [null, null, 0, 1, 1, 1]}},
+  four5: {name: "Shell + 5th · root on A", rs: 1, t: {
+    maj7: [null, 0, 2, 1, 2, null], "7": [null, 0, 2, 0, 2, null], m7: [null, 0, 2, 0, 1, null],
+    "6": [null, 0, 2, -1, 2, null], m6: [null, 0, 2, -1, 1, null], m7b5: [null, 0, 1, 0, 1, null]}},
+  four6: {name: "Shell + 5th · root on E", rs: 0, t: {
+    maj7: [0, null, 1, 1, 0, null], "7": [0, null, 0, 1, 0, null], m7: [0, null, 0, 0, 0, null],
+    "6": [0, null, -1, 1, 0, null], m6: [0, null, -1, 0, 0, null], m7b5: [0, null, 0, 0, -1, null]}},
+  eric6top: {name: "Eric's pick · root on A, top 3 barred", t: {"6": [null, 0, null, 2, 2, 2]}},
+  eric6low: {name: "Eric's pick · low, 5th in the bass", t: {"6": [null, 0, 0, -1, 0, null]}},
+  open: {name: "Open position"}
+};
+// Open-position chords, added wherever the key makes one available. pc = root pitch class.
+const LIB = [
+  {pc: 0, q: "maj7", f: [null, 3, 2, 0, 0, 0]}, {pc: 2, q: "maj7", f: [null, null, 0, 2, 2, 2]},
+  {pc: 4, q: "maj7", f: [0, 2, 1, 1, 0, 0]}, {pc: 5, q: "maj7", f: [null, null, 3, 2, 1, 0]},
+  {pc: 7, q: "maj7", f: [3, null, 0, 0, 0, 2]}, {pc: 9, q: "maj7", f: [null, 0, 2, 1, 2, 0]},
+  {pc: 0, q: "6", f: [null, 3, 2, 2, 1, 0]}, {pc: 2, q: "6", f: [null, null, 0, 2, 0, 2]},
+  {pc: 4, q: "6", f: [0, 2, 2, 1, 2, 0]}, {pc: 7, q: "6", f: [3, 2, 0, 0, 0, 0]},
+  {pc: 9, q: "6", f: [null, 0, 2, 2, 2, 2]},
+  {pc: 9, q: "m7", f: [null, 0, 2, 0, 1, 0]}, {pc: 2, q: "m7", f: [null, null, 0, 2, 1, 1]},
+  {pc: 4, q: "m7", f: [0, 2, 0, 0, 0, 0]}, {pc: 11, q: "m7", f: [null, 2, 0, 2, 0, 2]},
+  {pc: 9, q: "m6", f: [null, 0, 2, 2, 1, 2]}, {pc: 2, q: "m6", f: [null, null, 0, 2, 0, 1]},
+  {pc: 4, q: "m6", f: [0, 2, 2, 0, 2, 0]},
+  {pc: 9, q: "7", f: [null, 0, 2, 0, 2, 0]}, {pc: 11, q: "7", f: [null, 2, 1, 2, 0, 2]},
+  {pc: 0, q: "7", f: [null, 3, 2, 3, 1, 0]}, {pc: 2, q: "7", f: [null, null, 0, 2, 1, 2]},
+  {pc: 4, q: "7", f: [0, 2, 0, 1, 0, 0]}, {pc: 7, q: "7", f: [3, 2, 0, 0, 0, 1]},
+  {pc: 2, q: "m7b5", f: [null, null, 0, 1, 1, 1]}, {pc: 9, q: "m7b5", f: [null, 0, 1, 0, 1, null]},
+  {pc: 4, q: "m7b5", f: [0, 1, 2, 0, 3, 0]}
+];
+// The song, as written in F (the Real Book key): [letter, root pitch class, quality, shape options in F].
+// option: [family, root fret]  or  ["open", frets].
+const HOME = {letter: "F", pc: 5};
+const CHORDS = {
+  "Fmaj7":  ["F", 5, "maj7", [["bE", 1], ["shell6", 1], ["shell5", 8], ["droot", 3], ["skip5", 8]]],
+  "G7":     ["G", 7, "7", [["bE", 3], ["shell6", 3], ["shell5", 10], ["barreA", 10], ["droot", 5]]],
+  "Gm7":    ["G", 7, "m7", [["bE", 3], ["shell6", 3], ["shell5", 10], ["barreA", 10], ["droot", 5]]],
+  "Gb7":    ["G", 6, "7", [["bE", 2], ["shell6", 2], ["shell5", 9], ["barreA", 9], ["droot", 4]]],
+  "Gbmaj7": ["G", 6, "maj7", [["bE", 2], ["shell6", 2], ["shell5", 9], ["droot", 4]]],
+  "B7":     ["B", 11, "7", [["barreA", 2], ["shell5", 2], ["shell6", 7], ["bE", 7]]],
+  "Gbm7":   ["G", 6, "m7", [["bE", 2], ["shell6", 2], ["shell5", 9], ["barreA", 9]]],
+  "D7":     ["D", 2, "7", [["barreA", 5], ["shell5", 5], ["shell6", 10], ["droot", 0], ["bE", 10]]],
+  "Eb7":    ["E", 3, "7", [["barreA", 6], ["shell5", 6], ["shell6", 11], ["droot", 1], ["bE", 11]]],
+  "Am7":    ["A", 9, "m7", [["bE", 5], ["shell6", 5], ["barreA", 0], ["droot", 7]]]
+};
+const G711 = {k: "Gb7", s: "7♯11"};
+const A1 = ["Fmaj7", "Fmaj7", "G7", "G7", "Gm7", G711, "Fmaj7", G711];
+const A2 = ["Fmaj7", "Fmaj7", "G7", "G7", "Gm7", G711, "Fmaj7", "Fmaj7"];
+const B_BARS = ["Gbmaj7", "Gbmaj7", "B7", "B7", "Gbm7", "Gbm7", "D7", "D7",
+  "Gm7", "Gm7", "Eb7", "Eb7", "Am7", {k: "D7", s: "7♭9"}, "Gm7", G711];
+const A_BARS = A1.concat(A2);
+const A_LAST = A1.slice(0, 7).concat([{k: "Fmaj7", alt: () => `${nameOf("Gb7", "7♯11")} to go around again`}]);
+const TAG_BARS = ["Gm7", G711, "Fmaj7", "Fmaj7"];
+
+const KEYS = [
+  {id: "G", letter: "G", pc: 7}, {id: "Ab", letter: "A", pc: 8}, {id: "A", letter: "A", pc: 9},
+  {id: "Bb", letter: "B", pc: 10}, {id: "B", letter: "B", pc: 11}, {id: "C", letter: "C", pc: 0},
+  {id: "Db", letter: "D", pc: 1}, {id: "D", letter: "D", pc: 2}, {id: "Eb", letter: "E", pc: 3},
+  {id: "E", letter: "E", pc: 4}, {id: "F", letter: "F", pc: 5}
+];
+let KEY = "F";
+let STYLE = "barre"; // barre | shells | mixed
+const STYLES = ["barre", "shells", "mixed"];
+const LET = "CDEFGAB", NAT = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
+const ACC = {0: "", 1: "♯", 2: "𝄪", 11: "♭", 10: "𝄫"};
+const keyObj = () => KEYS.find(x => x.id === KEY);
+const semis = () => (keyObj().pc - HOME.pc + 12) % 12;
+function noteName(letter, pc) { // chart note moved into the current key, spelled by letter
+  const kk = keyObj();
+  const L = LET[(LET.indexOf(letter) + LET.indexOf(kk.letter) - LET.indexOf(HOME.letter) + 14) % 7];
+  const p = (pc + semis()) % 12;
+  return L + ACC[(p - NAT[L] + 12) % 12];
+}
+const keyName = () => noteName(HOME.letter, HOME.pc);
+function nameOf(k, suf) { const [letter, pc, q] = CHORDS[k]; return noteName(letter, pc) + (suf === undefined ? SUF[q] : suf); }
+function famFrets(o, q, d) {
+  if (o[0] === "open") return o[1].slice();
+  const t = FAM[o[0]].t[q]; if (!t) return null;
+  return t.map(x => x === null ? null : o[1] + d + x);
+}
+function norm(f) {
+  if (!f) return null;
+  const nn = () => f.filter(x => x !== null);
+  while (Math.min(...nn()) < 0) f = f.map(x => x === null ? null : x + 12);
+  while (Math.max(...nn()) > 12 && Math.min(...nn()) >= 12) f = f.map(x => x === null ? null : x - 12);
+  return Math.max(...nn()) > 15 ? null : f;
+}
+const _optCache = {};
+function optsFor(k) {
+  const ck = KEY + "|" + STYLE + "|" + k; if (_optCache[ck]) return _optCache[ck];
+  const [, pc, q, cur] = CHORDS[k];
+  const st = semis(), d = ((st + 6) % 12) - 6, root = (pc + st) % 12;
+  const out = [], seen = new Set();
+  const add = (frets, fam) => { if (!frets) return; const t = tabString(frets); if (seen.has(t)) return; seen.add(t); out.push({frets, fam}); };
+  let nShell = 0;
+  const lo = c => Math.min(...c.f.filter(x => x !== null && x > 0).concat([99]));
+  if (STYLE === "barre") {
+    // Barre first: full E-shape (root on low E) and A-shape (root on A), at every playable spot.
+    const cands = [];
+    ["bE", "barreA"].forEach(fam => {
+      const t = FAM[fam].t[q]; if (!t) return;
+      const r0 = (root - OPEN[FAM[fam].rs] + 12) % 12;
+      [r0, r0 + 12].forEach(r => {
+        const f = t.map(x => x === null ? null : r + x);
+        const nn = f.filter(x => x !== null);
+        if (Math.min(...nn) >= 1 && Math.max(...nn) <= 13) cands.push({f, fam});
+      });
+    });
+    cands.sort((a, b) => lo(a) - lo(b)).forEach(c => add(c.f, c.fam));
+    nShell = out.length;
+  }
+  if (STYLE === "shells" || STYLE === "barre") {
+    const shellStart = out.length;
+    // Shells first: bass note (E or A string) + D + G, at every playable spot.
+    const cands = [];
+    ["shell6", "shell5"].forEach(fam => {
+      const t = FAM[fam].t[q], r0 = (root - OPEN[FAM[fam].rs] + 12) % 12;
+      [r0, r0 + 12].forEach(r => {
+        const f = t.map(x => x === null ? null : r + x);
+        const nn = f.filter(x => x !== null);
+        if (Math.min(...nn) >= 0 && Math.max(...nn) <= 13) cands.push({f, fam});
+      });
+    });
+    cands.sort((a, b) => lo(a) - lo(b)).forEach(c => add(c.f, c.fam));
+    if (q === "m7") {
+      // Same hand shape as the -7♭5 shell (root on A, b7 on G, b3 on B), just without the ♭5.
+      const t = FAM.skip5.t.m7, r0 = (root - OPEN[1] + 12) % 12;
+      [r0, r0 + 12].map(r => t.map(x => x === null ? null : r + x))
+        .filter(f => { const nn = f.filter(x => x !== null); return Math.min(...nn) >= 0 && Math.max(...nn) <= 13; })
+        .forEach(f => add(f, "skip5"));
+    }
+    if (STYLE === "shells") nShell = out.length;
+    // Next: shell + 5th, the same strings as the half-diminished shells (A D G B or E D G B).
+    const c4 = [];
+    ["four6", "four5"].forEach(fam => {
+      const t = FAM[fam].t[q], r0 = (root - OPEN[FAM[fam].rs] + 12) % 12;
+      [r0, r0 + 12].forEach(r => {
+        const f = t.map(x => x === null ? null : r + x);
+        const nn = f.filter(x => x !== null);
+        if (Math.min(...nn) >= 0 && Math.max(...nn) <= 13) c4.push({f, fam});
+      });
+    });
+    c4.sort((a, b) => lo(a) - lo(b)).forEach(c => add(c.f, c.fam));
+  }
+  // Other shapes: skip-string, barre, top-4 (moved from the E♭ list), and open chords.
+  const lib = LIB.filter(e => e.pc === root && e.q === q).map(e => ({f: e.f.slice(), fam: "open"}));
+  let others;
+  if (st === 0) others = cur.map(o => ({f: famFrets(o, q, 0), fam: o[0]}));
+  else {
+    const top = f => Math.max(...f.filter(x => x !== null));
+    others = cur.filter(o => o[0] !== "open").map(o => ({f: norm(famFrets(o, q, d)), fam: o[0]})).filter(x => x.f)
+      .sort((x, y) => top(x.f) - top(y.f));
+  }
+  if (STYLE !== "mixed") others.concat(lib).forEach(x => add(x.f, x.fam));
+  else if (st === 0) others.concat(lib).forEach(x => add(x.f, x.fam));
+  else lib.concat(others).forEach(x => add(x.f, x.fam));
+  const res = out.slice(0, STYLE !== "mixed" ? nShell + 8 : 6);
+  res.nShell = nShell;
+  return (_optCache[ck] = res);
+}
+function voicing(key, i) {
+  const [, pc, q] = CHORDS[key];
+  const o = optsFor(key)[i];
+  const root = (pc + semis()) % 12;
+  const frets = o.frets;
+  const labels = frets.map((f, s) => f === null ? null : IV[(OPEN[s] + f - root + 120) % 12]);
+  const hasOpen = frets.some(f => f === 0);
+  let famName = (o.fam === "skip5" && q === "m7") ? "Half-dim shape minus the ♭5 · root on A" : FAM[o.fam].name;
+  if (o.fam !== "open" && !o.fam.startsWith("eric") && hasOpen) famName = (o.fam === "droot" ? "Open · root on D" : famName + " (open strings)");
+  const fretted = frets.filter(f => f !== null && f > 0);
+  const pos = fretted.length ? Math.min(...fretted) : 0;
+  const strs = frets.map((f, s) => f === null ? null : "EADGBe"[s]).filter(Boolean).join(" ");
+  return {key, disp: nameOf(key), q, fam: o.fam, famName: famName + " · strings " + strs, frets, labels, rootPc: root, pos, n: optsFor(key).length};
+}
+function tabString(fr) { return fr.map(f => f === null ? "x" : (f > 9 ? "(" + f + ")" : String(f))).join(""); }
+function setKey(k) { KEY = k; }
+function setStyle(x) { STYLE = x; }
+const FORM = [];
+[A1, A2, B_BARS, A_LAST].forEach(sec => sec.forEach(b => (Array.isArray(b) ? b : [typeof b === "object" ? b.k : b]).forEach(k => FORM.push(k))));
+const _defCache = {};
+// Shapes that differ from the smoothest picks, chosen by ear. "key|style": {chord name as shown: tab}.
+const PRESETS = {
+  // Eric's barre shapes in F (from his chord sheet).
+  "F|barre": {"Fmaj7": "132211", "G7": "353433", "Gm7": "353333", "G♭7": "242322", "G♭maj7": "243322",
+    "B7": "x24242", "G♭m7": "242222", "D7": "x57575", "Am7": "575555"}
+};
+function posOf(f) { const n = f.filter(x => x !== null && x > 0); return n.length ? Math.min(...n) : 0; }
+function defaults() {
+  const ck = KEY + "|" + STYLE; if (_defCache[ck]) return _defCache[ck];
+  const ks = Object.keys(CHORDS), sel = {};
+  ks.forEach(k => sel[k] = 0);
+  if (STYLE !== "mixed") {
+    const cost = () => { let c = 0, prev = null;
+      FORM.forEach(k => { const f = optsFor(k)[sel[k]].frets, p = posOf(f);
+        if (prev !== null) c += Math.abs(p - prev); c += Math.max(0, Math.max(...f.filter(x => x !== null)) - 10) * 2; prev = p; });
+      return c; };
+    for (let pass = 0; pass < 6; pass++) ks.forEach(k => {
+      let best = sel[k], bc = Infinity;
+      for (let i = 0; i < optsFor(k).nShell; i++) { sel[k] = i; const c = cost(); if (c < bc) { bc = c; best = i; } }
+      sel[k] = best;
+    });
+  }
+  const pre = PRESETS[ck] || {};
+  ks.forEach(k => { const want = pre[nameOf(k)]; if (!want) return; const i = optsFor(k).findIndex(o => tabString(o.frets) === want); if (i >= 0) sel[k] = i; });
+  return (_defCache[ck] = sel);
+}
+if (typeof module !== "undefined") module.exports = {CHORDS, TONES, KEYS, voicing, optsFor, tabString, setKey, setStyle, defaults, nameOf, keyName, FORM, posOf};
+</script>
+
+<script>
+const storeKey = () => `ipa-voicings-${KEY}-${STYLE}`;
+try { const sk = localStorage.getItem("ipa-key"); if (sk && KEYS.some(x => x.id === sk)) setKey(sk); } catch (e) {}
+const LAYOUT = "ipa-cheat-layout";
+let picks = {};
+function loadPicks() { try { picks = JSON.parse(localStorage.getItem(storeKey()) || "{}") || {}; } catch (e) { picks = {}; } }
+loadPicks();
+const pick = k => { const i = picks[k] ?? defaults()[k]; return i < optsFor(k).length ? i : 0; };
+function save() { try { localStorage.setItem(storeKey(), JSON.stringify(picks)); } catch (e) {} }
+
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent, text) {
+  const n = document.createElementNS(NS, tag);
+  for (const a in attrs) n.setAttribute(a, attrs[a]);
+  if (text !== undefined) n.textContent = text;
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function h(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+function colorFor(lab) {
+  if (lab === "1") return "var(--root)";
+  if (lab === "3" || lab === "b3") return "var(--third)";
+  if (lab === "7" || lab === "b7") return "var(--seventh)";
+  return "var(--other)";
+}
+function diagram(v) {
+  const fretted = v.frets.filter(f => f !== null && f > 0);
+  const hasOpen = v.frets.some(f => f === 0);
+  const lo = fretted.length ? Math.min(...fretted) : 1, hi = fretted.length ? Math.max(...fretted) : 1;
+  const start = (hasOpen || lo <= 2) ? 1 : lo;
+  const n = Math.max(4, hi - start + 1);
+  const colW = 26, rowH = 15, L = 22, T = 9;
+  const W = L + n * colW + 6, H = T + 5 * rowH + 20;
+  const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${v.disp} ${tabString(v.frets)}`});
+  const y = s => T + (5 - s) * rowH;
+  for (let s = 0; s < 6; s++) el("line", {x1: L, x2: L + n * colW, y1: y(s), y2: y(s), stroke: "var(--muted)", "stroke-width": s === 0 ? 1.4 : 0.9}, svg);
+  for (let k = 0; k <= n; k++) {
+    const x = L + k * colW;
+    el("line", {x1: x, x2: x, y1: T, y2: T + 5 * rowH, stroke: "var(--muted)", "stroke-width": (k === 0 && start === 1) ? 4 : 0.9}, svg);
+  }
+  for (let k = 0; k < n; k++) {
+    el("text", {x: L + (k + 0.5) * colW, y: T + 5 * rowH + 14, "text-anchor": "middle", "font-size": 9.5,
+      "font-family": "IBM Plex Mono, monospace", fill: "var(--muted)", "font-weight": (start + k) === lo ? 700 : 400}, svg, String(start + k));
+  }
+  v.frets.forEach((f, s) => {
+    const cy = y(s);
+    if (f === null) {
+      const cx = L - 11, d = 3.6;
+      el("path", {d: `M${cx - d} ${cy - d}L${cx + d} ${cy + d}M${cx + d} ${cy - d}L${cx - d} ${cy + d}`, stroke: "var(--mute)", "stroke-width": 1.8, fill: "none"}, svg);
+      return;
+    }
+    const lab = v.labels[s], col = colorFor(lab);
+    const cx = f === 0 ? L - 11 : L + (f - start + 0.5) * colW;
+    if (f === 0) {
+      el("circle", {cx, cy, r: 6.6, fill: "var(--paper)", stroke: col, "stroke-width": 1.8}, svg);
+      el("text", {x: cx, y: cy + 3, "text-anchor": "middle", "font-size": 8, "font-weight": 700, fill: col, "font-family": "IBM Plex Sans, sans-serif"}, svg, lab);
+      return;
+    }
+    if (lab === "1") el("rect", {x: cx - 7, y: cy - 7, width: 14, height: 14, rx: 3, fill: col}, svg);
+    else el("circle", {cx, cy, r: 7, fill: col}, svg);
+    el("text", {x: cx, y: cy + 3, "text-anchor": "middle", "font-size": 8.2, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, lab);
+  });
+  return svg;
+}
+
+function barItems(b) {
+  if (Array.isArray(b)) return b.map(k => ({k, d: nameOf(k)}));
+  if (typeof b === "object") return [{k: b.k, d: nameOf(b.k, b.s), alt: b.alt}];
+  return [{k: b, d: nameOf(b)}];
+}
+function moveText(prev, cur) {
+  if (prev === null) return "";
+  const d = cur - prev;
+  if (d === 0) return "same spot";
+  return (d > 0 ? "↑" : "↓") + Math.abs(d);
+}
+function step(k, dir, focusId) {
+  const n = optsFor(k).length;
+  picks[k] = (pick(k) + dir + n) % n;
+  save(); renderAll();
+  const f = document.getElementById(focusId); if (f) f.focus({preventScroll: true});
+}
+function clicker(k, idBase, v) {
+  const box = h("div", "clicker");
+  const prev = h("button", "", "‹"), next = h("button", "", "›");
+  prev.type = next.type = "button";
+  prev.id = idBase + "-p"; next.id = idBase + "-n";
+  prev.setAttribute("aria-label", `Previous shape for ${nameOf(k)}`);
+  next.setAttribute("aria-label", `Next shape for ${nameOf(k)}`);
+  prev.addEventListener("click", () => step(k, -1, prev.id));
+  next.addEventListener("click", () => step(k, 1, next.id));
+  box.append(prev, h("span", "pos", `${pick(k) + 1}/${v.n}`), next);
+  return box;
+}
+function voiceBlock(item, v, idBase) {
+  const c = h("div", "voice");
+  c.append(h("div", "sym", item.d), diagram(v), h("div", "tab", tabString(v.frets)), clicker(item.k, idBase, v), h("div", "fam", v.famName));
+  return c;
+}
+
+function renderGrid(gridId, bars, prevPos, travelId) {
+  const grid = document.getElementById(gridId);
+  grid.textContent = "";
+  let prev = prevPos, travel = 0;
+  bars.forEach((b, i) => {
+    const items = barItems(b);
+    const bar = h("div", "bar");
+    const vs = items.map(it => voicing(it.k, pick(it.k)));
+    const moves = [];
+    vs.forEach(v => { if (prev !== null) travel += Math.abs(v.pos - prev); moves.push(moveText(prev, v.pos)); prev = v.pos; });
+    const num = h("div", "num");
+    num.append(h("span", "", String(i + 1)), h("span", "move", moves[0] || ""));
+    bar.appendChild(num);
+    if (vs.length === 1) bar.appendChild(voiceBlock(items[0], vs[0], `${gridId}-${i}-0`));
+    else {
+      const pair = h("div", "pair");
+      vs.forEach((v, j) => pair.appendChild(voiceBlock(items[j], v, `${gridId}-${i}-${j}`)));
+      bar.appendChild(pair);
+    }
+    grid.appendChild(bar);
+  });
+  document.getElementById(travelId).innerHTML = `Hand travel: <b>${travel}</b> frets`;
+  return prev;
+}
+
+function renderRef() {
+  const g = document.getElementById("refGrid"); g.textContent = "";
+  Object.keys(CHORDS).forEach(k => {
+    const v = voicing(k, pick(k));
+    const c = h("div", "cell");
+    c.append(h("div", "sym", v.disp), diagram(v), h("div", "tab", tabString(v.frets)));
+    g.appendChild(c);
+  });
+}
+
+/* Cheat sheets */
+function csTitle(extra) {
+  const t = h("div", "cs-title");
+  const left = h("div"); left.appendChild(h("h3", "", "The Girl from Ipanema"));
+  t.append(left, h("span", "", extra));
+  return t;
+}
+function csLegend() {
+  const l = h("div", "cs-legend");
+  l.innerHTML = '<span><i class="sw root"></i> 1</span><span><i class="sw third"></i> 3 / b3</span><span><i class="sw seventh"></i> 7 / b7</span><span><i class="sw other"></i> 5, b5, 6</span><span>High e on top</span>';
+  return l;
+}
+function csRows(sections, withDiagrams) {
+  const lines = h("div", "cs-lines");
+  let barNo = 0;
+  sections.forEach(([label, bars, lyr]) => {
+    for (let r = 0; r < bars.length; r += 8) {
+      const row = h("div", "cs-row" + (withDiagrams ? " tall" : ""));
+      row.appendChild(h("div", "lab" + (r ? " blank" : ""), label));
+      bars.slice(r, r + 8).forEach((b, j) => {
+        barNo++;
+        const items = barItems(b);
+        const cell = h("div", "cs-bar" + (j === 4 ? " phrase" : ""));
+        cell.appendChild(h("div", "n", String(barNo)));
+        if (!withDiagrams) {
+          cell.appendChild(h("div", "sym" + (items.length > 1 ? " two" : ""), items.map(x => x.d).join("  ")));
+        } else if (items.length === 1) {
+          const v = voicing(items[0].k, pick(items[0].k));
+          cell.append(h("div", "sym", items[0].d), diagram(v), h("div", "tab", tabString(v.frets)));
+        } else {
+          cell.appendChild(h("div", "sym two", items.map(x => x.d).join("  ")));
+          const pair = h("div", "pair");
+          items.forEach(it => { const v = voicing(it.k, pick(it.k)); const c = h("div"); c.append(diagram(v), h("div", "tab", tabString(v.frets))); pair.appendChild(c); });
+          cell.appendChild(pair);
+        }
+        if (items[0].alt) cell.appendChild(h("div", "alt", items[0].alt()));
+        row.appendChild(cell);
+      });
+      lines.appendChild(row);
+      if (lyr) (lyr[r / 8] || []).forEach(line => lines.appendChild(lyricLine(line)));
+    }
+  });
+  return lines;
+}
+/* Lyric lines: the text is whatever the user pastes or types; nothing is built in. */
+const LYR_STORE = "ipa-lyrics-v1";
+const N_PHRASES = 11;
+let lyrics = [];
+try { lyrics = JSON.parse(localStorage.getItem(LYR_STORE) || "[]") || []; } catch (e) { lyrics = []; }
+function saveLyrics() { try { localStorage.setItem(LYR_STORE, JSON.stringify(lyrics)); } catch (e) {} }
+let lyrSeq = 0;
+function lyricLine([tag, left, right]) {
+  const row = h("div", "cs-lyr");
+  row.appendChild(h("div", "lab", tag || ""));
+  [left, right].filter(x => x !== undefined).forEach(idx => {
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.id = "lyr-" + (lyrSeq++); inp.dataset.idx = idx;
+    inp.value = lyrics[idx] || "";
+    inp.placeholder = "";
+    inp.setAttribute("aria-label", `Lyric line ${idx + 1}`);
+    inp.addEventListener("input", () => {
+      lyrics[idx] = inp.value; saveLyrics();
+      document.querySelectorAll(`.cs-lyr input[data-idx="${idx}"]`).forEach(o => { if (o !== inp) o.value = inp.value; });
+    });
+    row.appendChild(inp);
+  });
+  return row;
+}
+function renderCheat() {
+  lyrSeq = 0;
+  const c3 = document.getElementById("cs3"); c3.textContent = "";
+  c3.append(csTitle(`Key of ${keyName()} · A – A – Bridge – A, written out · lyrics under each 4-bar phrase`));
+  c3.append(csRows([
+    ["A", A1, [[["", 0, 1]]]],
+    ["A", A2, [[["", 2, 3]]]],
+    ["B", B_BARS, [[["", 4, 5]], [["", 6, 7]]]],
+    ["A", A_LAST, [[["", 8, 9]]]],
+    ["T", TAG_BARS, [[["", 10]]]]
+  ], false));
+  c3.append(h("p", "cs-key-h", "Your shapes"));
+  const key3 = h("div", "cs-key");
+  Object.keys(CHORDS).forEach(k => {
+    const v = voicing(k, pick(k));
+    const cell = h("div", "cell");
+    cell.append(h("div", "sym", v.disp), diagram(v), h("div", "tab", tabString(v.frets)));
+    key3.appendChild(cell);
+  });
+  c3.append(key3, csLegend());
+  const f3 = h("div", "cs-foot");
+  f3.innerHTML = `<span><b>T = tag</b> (optional): repeat the last 4 bars to fade out, ending on ${N("Fmaj7")}.</span><span>${playAs()} Fallback: if a shape won't come in time, play just the root on beat 1.</span>`;
+  c3.append(f3);
+
+  const c4 = document.getElementById("cs4"); c4.textContent = "";
+  c4.append(csTitle(`Key of ${keyName()} · Form: A – A – Bridge – A · lyrics under each 4-bar phrase`));
+  c4.append(csRows([
+    ["A", A_BARS, [[["1st", 0, 1], ["last", 8, 9]], [["2nd", 2, 3]]]],
+    ["B", B_BARS, [[["", 4, 5]], [["", 6, 7]]]],
+    ["T", TAG_BARS, [[["", 10]]]]
+  ], true));
+  c4.append(csLegend());
+  const f4 = h("div", "cs-foot");
+  f4.innerHTML = `<span><b>Last A:</b> after the bridge, play bars 1–8 again with the "last" lyric line, and end on ${N("Fmaj7")} instead of ${N("Gb7", "7♯11")}. <b>T = tag</b> (optional): repeat the last 4 bars to fade out.</span><span>${playAs()} Fallback: play just the root on beat 1.</span>`;
+  c4.append(f4);
+}
+let layout = "3";
+try { const l = localStorage.getItem(LAYOUT); layout = l === "4" || l === "2" ? "4" : "3"; } catch (e) {}
+function setLayout(l) {
+  layout = l;
+  try { localStorage.setItem(LAYOUT, l); } catch (e) {}
+  ["3", "4"].forEach(n => {
+    document.getElementById("cs" + n).hidden = l !== n;
+    document.getElementById("lay" + n).setAttribute("aria-pressed", String(l === n));
+  });
+}
+
+const N = (k, s) => nameOf(k, s);
+const playAs = () => `${N("Gb7", "7♯11")} → play ${N("Gb7")}. ${N("D7", "7♭9")} → play ${N("D7")}.`;
+function renderText() {
+  document.getElementById("keyLabel").textContent = keyName();
+  document.getElementById("noteA").textContent = `Bars 1–8 are the first A and bars 9–16 the second. They only differ at the end: bar 8 is ${N("Gb7", "7♯11")}, a half step above home, sliding back to the top; bar 16 stays on ${N("Fmaj7")} before the bridge. After the bridge, play bars 1–8 once more. Changing a shape in one bar changes every bar with that chord.`;
+  document.getElementById("noteB").textContent = `The bridge jumps up a half step to ${N("Gbmaj7")}, then moves through ${N("B7")}, ${N("Gbm7")} → ${N("D7")}, and ${N("Gm7")} → ${N("Eb7")}. The last 4 bars (${N("Am7")} ${N("D7", "7♭9")} ${N("Gm7")} ${N("Gb7", "7♯11")}) walk back home to the last A.`;
+  document.getElementById("refMap").innerHTML =
+    `<li><b>A:</b> ${N("Fmaj7")} 2 bars → ${N("G7")} 2 bars → ${N("Gm7")} ${N("Gb7", "7♯11")} → ${N("Fmaj7")} (${N("Gb7", "7♯11")} the first time)</li>` +
+    `<li><b>Bridge:</b> ${N("Gbmaj7")} → ${N("B7")} → ${N("Gbm7")} → ${N("D7")} → ${N("Gm7")} → ${N("Eb7")} → ${N("Am7")} ${N("D7", "7♭9")} ${N("Gm7")} ${N("Gb7", "7♯11")}</li>` +
+    `<li><b>Last A:</b> same as the first A, ending on ${N("Fmaj7")}</li>` +
+    `<li>Fallback: if a shape won't come in time, play just the root on beat 1.</li>`;
+  const kk = keyObj(), easy = [["C", 0], ["A", 9], ["G", 7], ["E", 4], ["D", 2]];
+  const hints = easy.map(([n, pc]) => [n, (kk.pc - pc + 12) % 12]).filter(([, c]) => c >= 1 && c <= 5).sort((a, b) => a[1] - b[1]).slice(0, 2);
+  document.getElementById("capoHint").textContent = hints.length
+    ? "Capo option: " + hints.map(([n, c]) => `capo ${c} and set the key to ${n}`).join(", or ") + "."
+    : "";
+}
+function renderBook() {
+  document.getElementById("bookSub").textContent = `(key of ${keyName()} · ${({barre: "barre chords first", shells: "shells first", mixed: "open chords first"})[STYLE]} · ✓ = in use)`;
+  const rows = document.getElementById("bookRows"); rows.textContent = "";
+  Object.keys(CHORDS).forEach(k => {
+    const row = h("div", "book-row");
+    const head = h("div"); head.append(h("div", "sym", nameOf(k)), h("div", "tones", TONES[CHORDS[k][2]].join(" · ")));
+    const opts = h("div", "book-opts");
+    optsFor(k).forEach((_, i) => {
+      const v = voicing(k, i);
+      const b = h("button", "bopt"); b.type = "button"; b.id = `book-${k}-${i}`;
+      b.setAttribute("aria-pressed", String(pick(k) === i));
+      b.setAttribute("aria-label", `${v.disp} option ${i + 1}: ${tabString(v.frets)}`);
+      b.append(diagram(v), h("div", "tab", tabString(v.frets) + (pick(k) === i ? " ✓" : "")), h("div", "bf", v.famName.split(" · strings ")[0]));
+      b.addEventListener("click", () => { picks[k] = i; save(); renderAll(); const f = document.getElementById(b.id); if (f) f.focus({preventScroll: true}); });
+      opts.appendChild(b);
+    });
+    row.append(head, opts); rows.appendChild(row);
+  });
+}
+function renderAll() {
+  renderText();
+  renderBook();
+  const endA = renderGrid("gridA", A_BARS, null, "travelA");
+  renderGrid("gridB", B_BARS, endA, "travelB");
+  renderRef();
+  renderCheat();
+}
+const HOME_KEY = "F";
+const keySel = document.getElementById("keySel");
+KEYS.forEach(x => { const o = document.createElement("option"); o.value = x.id; KEY = x.id; o.textContent = keyName() + (x.id === HOME_KEY ? "  (Real Book key)" : ""); keySel.appendChild(o); });
+try { const sk = localStorage.getItem("ipa-key"); KEY = (sk && KEYS.some(x => x.id === sk)) ? sk : HOME_KEY; } catch (e) { KEY = HOME_KEY; }
+keySel.value = KEY;
+const styleSel = document.getElementById("styleSel");
+try { const ss = localStorage.getItem("ipa-style"); if (ss && STYLES.includes(ss)) setStyle(ss); } catch (e) {}
+styleSel.value = STYLE;
+styleSel.addEventListener("change", () => { setStyle(styleSel.value); try { localStorage.setItem("ipa-style", STYLE); } catch (e) {} loadPicks(); renderAll(); });
+keySel.addEventListener("change", () => { setKey(keySel.value); try { localStorage.setItem("ipa-key", KEY); } catch (e) {} loadPicks(); renderAll(); });
+loadPicks();
+document.getElementById("reset").addEventListener("click", () => { picks = {}; save(); renderAll(); });
+document.getElementById("lay3").addEventListener("click", () => setLayout("3"));
+document.getElementById("lay4").addEventListener("click", () => setLayout("4"));
+const lyrBox = document.getElementById("lyrPaste");
+function fillFromBox() {
+  const lines = lyrBox.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  lyrics = Array.from({length: N_PHRASES}, (_, i) => lines[i] || "");
+  saveLyrics(); renderCheat();
+  const extra = lines.length > N_PHRASES ? ` (${lines.length - N_PHRASES} extra ignored)` : "";
+  document.getElementById("lyrStatus").textContent = lines.length ? `✓ ${Math.min(lines.length, N_PHRASES)} of ${N_PHRASES} lines on the sheet${extra}.` : "";
+}
+lyrBox.value = lyrics.filter(Boolean).length ? lyrics.join("\n").replace(/\n+$/, "") : "";
+lyrBox.addEventListener("input", fillFromBox);
+document.getElementById("lyrClear").addEventListener("click", () => {
+  lyrics = []; saveLyrics(); lyrBox.value = ""; renderCheat();
+  document.getElementById("lyrStatus").textContent = "Lyrics cleared.";
+});
+document.getElementById("printFull").addEventListener("click", () => { document.body.classList.remove("print-cheat", "print-book"); window.print(); });
+document.getElementById("printCheat").addEventListener("click", () => { document.body.classList.remove("print-book"); document.body.classList.add("print-cheat"); window.print(); });
+document.getElementById("printBook").addEventListener("click", () => { document.body.classList.remove("print-cheat"); document.body.classList.add("print-book"); window.print(); });
+document.getElementById("copyPicks").addEventListener("click", () => {
+  const out = {}; Object.keys(CHORDS).forEach(k => out[nameOf(k)] = tabString(optsFor(k)[pick(k)].frets));
+  const text = `"${KEY}|${STYLE}": ${JSON.stringify(out)}`;
+  const box = document.getElementById("copyOut"), st = document.getElementById("copyStatus");
+  box.value = text; box.hidden = false;
+  const done = () => { st.textContent = "Copied. Paste it to Claude to make these the defaults."; };
+  try { navigator.clipboard.writeText(text).then(done, () => { box.select(); st.textContent = "Select the text below and copy it."; }); }
+  catch (e) { box.select(); st.textContent = "Select the text below and copy it."; }
+});
+window.addEventListener("afterprint", () => document.body.classList.remove("print-cheat", "print-book"));
+renderAll();
+setLayout(layout);
+</script>
+
+</body>
+</html>
