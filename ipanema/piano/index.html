@@ -97,7 +97,7 @@ section.sheet { background: var(--paper); border: 1px solid var(--line); border-
 .cs-bar .sym { font-family: var(--display); font-size: 1.05rem; text-align: center; line-height: 1.15; white-space: nowrap; }
 .cs-bar .alt { font-size: 0.55rem; color: var(--muted); text-align: center; }
 .cs-key-h { font: 700 0.8rem var(--body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin: 4px 0 0; }
-.cs-key { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 10px; }
+.cs-key { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 22px; }
 .cs-key .cell { display: grid; gap: 1px; text-align: center; }
 .cs-key .sym { font-family: var(--display); font-size: 1.05rem; line-height: 1.1; }
 .cs-key .names { font-size: 0.62rem; }
@@ -134,7 +134,7 @@ section.sheet { background: var(--paper); border: 1px solid var(--line); border-
       <span><i class="sw lh"></i>Left hand: root</span>
       <span><i class="sw third"></i>Right hand: 3rd</span>
       <span><i class="sw seventh"></i>Right hand: 7th</span>
-      <span>Numbers on the keys are fingers (1 = thumb, 5 = pinky). ▲ marks middle C.</span>
+      <span>Left keyboard = left hand, right keyboard = right hand (starts at middle C). Number on a key = finger (1 thumb … 5 pinky). Small word under it = which note of the chord.</span>
     </div>
   </header>
 
@@ -215,11 +215,11 @@ function tones(k) {
 const LH_LOW = 48; // C3: the left-hand root sits in the octave C3–B3
 function candidates(k) {
   const t = tones(k), lh = LH_LOW + t.root.pc, out = [];
-  for (let low = 57; low <= 70; low++) {
+  for (let low = 60; low <= 71; low++) {
     [[t.third, t.sev], [t.sev, t.third]].forEach(([a, b]) => {
       if (low % 12 !== a.pc) return;
       let high = low + ((b.pc - a.pc + 12) % 12 || 12);
-      if (low - lh < 3 || high > 76) return;
+      if (high > 79) return;
       out.push({lh, rh: [{midi: low, ...a}, {midi: high, ...b}]});
     });
   }
@@ -263,29 +263,40 @@ function el(tag, attrs, parent, text) {
 }
 function h(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
 const isBlack = m => [1, 3, 6, 8, 10].includes(m % 12);
-const KB_LO = 48, KB_HI = 76; // C3 .. E5
-
-// Keyboard from C3 to E5 with the voicing's keys marked: color = role, number = finger.
+const IVWORD = {"3": "3rd", "b3": "♭3rd", "7": "7th", "b7": "♭7th"};
+// Two small keyboards: left hand (C3–B3) and right hand (middle C to G5).
+// Colored key = press it; number on the key = finger; small words under it = which note of the chord.
 function keyboard(v) {
-  const whites = []; for (let m = KB_LO; m <= KB_HI; m++) if (!isBlack(m)) whites.push(m);
-  const ww = 14, wh = 58, bw = 9, bh = 36, W = whites.length * ww, H = wh + 12;
-  const svg = el("svg", {viewBox: `0 0 ${W + 2} ${H}`, role: "img",
-    "aria-label": `Left hand ${v.lhName}, right hand ${v.rh.map(r => r.name).join(" and ")}`});
-  const xOf = m => { if (!isBlack(m)) return 1 + whites.indexOf(m) * ww; return 1 + whites.indexOf(m - 1) * ww + ww - bw / 2; };
+  const ww = 14, wh = 56, bw = 9, bh = 34, gap = 16, top = 14;
+  const boards = [{lo: 48, hi: 59, label: "Left hand"}, {lo: 60, hi: 79, label: "Right hand"}];
   const marks = new Map();
-  marks.set(v.lh, {col: "var(--lh)", f: v.lhFinger});
-  v.rh.forEach(r => marks.set(r.midi, {col: r.iv.includes("3") ? "var(--third)" : "var(--seventh)", f: r.finger}));
-  whites.forEach(m => {
-    const mk = marks.get(m), x = xOf(m);
-    el("rect", {x, y: 1, width: ww, height: wh, rx: 2, fill: mk ? mk.col : "var(--white-key)", stroke: "var(--key-edge)", "stroke-width": 0.8}, svg);
-    if (mk) el("text", {x: x + ww / 2, y: wh - 6, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
-    if (m === 60) el("text", {x: x + ww / 2, y: H - 1, "text-anchor": "middle", "font-size": 8, fill: "var(--muted)"}, svg, "▲");
+  marks.set(v.lh, {col: "var(--lh)", f: v.lhFinger, name: v.lhName, iv: "root"});
+  v.rh.forEach(r => marks.set(r.midi, {col: r.iv.includes("3") ? "var(--third)" : "var(--seventh)", f: r.finger, name: r.name, iv: IVWORD[r.iv]}));
+  let ox = 1, W = 0; const parts = [];
+  boards.forEach(bd => { const wh2 = []; for (let m = bd.lo; m <= bd.hi; m++) if (!isBlack(m)) wh2.push(m); parts.push({...bd, whites: wh2, ox}); ox += wh2.length * ww + gap; });
+  W = ox - gap + 1;
+  const H = top + wh + 31;
+  const svg = el("svg", {viewBox: `0 0 ${W} ${H}`, role: "img",
+    "aria-label": `Left hand ${v.lhName} with finger ${v.lhFinger}; right hand ${v.rh.map(r => r.name + " with finger " + r.finger).join(" and ")}`});
+  parts.forEach(bd => {
+    const xOf = m => isBlack(m) ? bd.ox + (bd.whites.indexOf(m - 1) + 1) * ww - bw / 2 : bd.ox + bd.whites.indexOf(m) * ww;
+    el("text", {x: bd.ox, y: 9, "font-size": 9, "font-weight": 600, fill: "var(--muted)", "font-family": "IBM Plex Sans, sans-serif"}, svg, bd.label);
+    bd.whites.forEach(m => {
+      const mk = marks.get(m), x = xOf(m);
+      el("rect", {x, y: top, width: ww, height: wh, rx: 2, fill: mk ? mk.col : "var(--white-key)", stroke: "var(--key-edge)", "stroke-width": 0.8}, svg);
+      if (mk) el("text", {x: x + ww / 2, y: top + wh - 6, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
+    });
+    for (let m = bd.lo; m <= bd.hi; m++) if (isBlack(m)) {
+      const mk = marks.get(m), x = xOf(m);
+      el("rect", {x, y: top, width: bw, height: bh, rx: 1.5, fill: mk ? mk.col : "var(--black-key)", stroke: mk ? "var(--black-key)" : "none", "stroke-width": mk ? 1.2 : 0}, svg);
+      if (mk) el("text", {x: x + bw / 2, y: top + bh - 5, "text-anchor": "middle", "font-size": 8.5, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
+    }
+    for (let m = bd.lo; m <= bd.hi; m++) { const mk = marks.get(m); if (!mk) continue;
+      const cx = xOf(m) + (isBlack(m) ? bw : ww) / 2;
+      el("text", {x: cx, y: top + wh + 11, "text-anchor": "middle", "font-size": 10.5, "font-weight": 700, fill: "var(--ink)", "font-family": "IBM Plex Sans, sans-serif"}, svg, mk.name);
+      el("text", {x: cx, y: top + wh + 22, "text-anchor": "middle", "font-size": 9, fill: "var(--muted)", "font-family": "IBM Plex Sans, sans-serif"}, svg, mk.iv);
+    }
   });
-  for (let m = KB_LO; m <= KB_HI; m++) if (isBlack(m)) {
-    const mk = marks.get(m), x = xOf(m);
-    el("rect", {x, y: 1, width: bw, height: bh, rx: 1.5, fill: mk ? mk.col : "var(--black-key)", stroke: mk ? "var(--black-key)" : "none", "stroke-width": mk ? 1.2 : 0}, svg);
-    if (mk) el("text", {x: x + bw / 2, y: bh - 5, "text-anchor": "middle", "font-size": 8.5, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
-  }
   return svg;
 }
 function full(k) {
@@ -327,11 +338,11 @@ function renderPaper() {
   const key = h("div", "cs-key");
   Object.keys(CHORDS).forEach(k => {
     const v = full(k), c = h("div", "cell"), kb = h("div", "kb");
-    kb.appendChild(keyboard(v)); c.append(h("div", "sym", nameOf(k)), kb, namesLine(v)); key.appendChild(c);
+    kb.appendChild(keyboard(v)); c.append(h("div", "sym", nameOf(k)), kb); key.appendChild(c);
   });
   p.appendChild(key);
   const lg = h("div", "cs-legend");
-  lg.innerHTML = '<span><i class="sw lh"></i> LH root</span><span><i class="sw third"></i> RH 3rd</span><span><i class="sw seventh"></i> RH 7th</span><span>Numbers = fingers · ▲ = middle C</span>';
+  lg.innerHTML = '<span><i class="sw lh"></i> LH root</span><span><i class="sw third"></i> RH 3rd</span><span><i class="sw seventh"></i> RH 7th</span><span>Number on key = finger (1 thumb … 5 pinky) · right-hand keyboard starts at middle C</span>';
   p.appendChild(lg);
   const f = h("div", "cs-foot");
   f.innerHTML = `<span><b>Form:</b> A (bars 1–8) → A (9–16) → Bridge (17–32) → last A (33–40), ending on ${nameOf("Fmaj7")}. <b>T = tag</b> (optional): repeat the last 4 bars to fade out.</span><span>${nameOf("Gb7", "7♯11")} → play ${nameOf("Gb7")}. ${nameOf("D7", "7♭9")} → play ${nameOf("D7")}. Press all 3 keys at the start of each bar.</span>`;
@@ -343,7 +354,7 @@ function renderChords() {
   Object.keys(CHORDS).forEach(k => {
     const v = full(k), c = h("div", "chord"), kb = h("div", "kb");
     kb.appendChild(keyboard(v));
-    c.append(h("div", "sym", nameOf(k)), kb, namesLine(v),
+    c.append(h("div", "sym", nameOf(k)), kb,
       h("div", "how", `Left hand finger 5 on ${v.lhName}. Right hand thumb on ${v.rh[0].name}, finger ${v.rh[1].finger} on ${v.rh[1].name}.`));
     box.appendChild(c);
   });
@@ -365,7 +376,7 @@ function renderBars() {
         chg = moved === 0 ? "RH stays" : moved === 1 ? "RH: 1 key moves" : "RH: both move"; }
       num.append(h("span", "", String(n)), h("span", "chg", chg));
       const kb = h("div", "kb"); kb.appendChild(keyboard(v));
-      bar.append(num, h("div", "sym", it.d), kb, namesLine(v));
+      bar.append(num, h("div", "sym", it.d), kb);
       if (it.alt) bar.appendChild(h("div", "names", `Last time: end here. ${altText()}.`));
       grid.appendChild(bar); prev = v;
     });
