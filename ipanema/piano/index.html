@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Girl from Ipanema Piano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: printable one-page sheet (chord grid + keyboard key) on top, then every bar with its own keyboard. */
+:root {
+  --bg: #f7f8fa; --paper: #ffffff; --ink: #17202b; --muted: #5d6877; --line: #d5dbe3;
+  --accent: #1f4e79; --accent-soft: #e3ecf6;
+  --lh: #1f4e79; --third: #c26a12; --seventh: #1e7f63;
+  --white-key: #ffffff; --black-key: #232a33; --key-edge: #9aa5b3; --dot-text: #ffffff;
+  --display: "Kalam", "Segoe Print", "Comic Sans MS", cursive;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161d; --paper: #1a212b; --ink: #e6ebf1; --muted: #9aa5b3; --line: #2f3a47;
+    --accent: #8cb8e6; --accent-soft: #1f2d3d; --lh: #5b93cc; --third: #e0913f; --seventh: #3fae8a;
+    --white-key: #e9edf2; --black-key: #0d1117; --key-edge: #6d7886; --dot-text: #0d1117; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161d; --paper: #1a212b; --ink: #e6ebf1; --muted: #9aa5b3; --line: #2f3a47;
+  --accent: #8cb8e6; --accent-soft: #1f2d3d; --lh: #5b93cc; --third: #e0913f; --seventh: #3fae8a;
+  --white-key: #e9edf2; --black-key: #0d1117; --key-edge: #6d7886; --dot-text: #0d1117; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; }
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+h1 { font-family: var(--display); font-size: 2.3rem; line-height: 1.05; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.sub a { color: var(--accent); }
+.keypick { margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.88rem; }
+.keypick label { font-weight: 600; }
+select { font: 500 0.95rem var(--body); padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+button { font: 500 0.9rem var(--body); border: 1px solid var(--line); background: var(--paper); color: var(--ink); padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.85rem; color: var(--muted); align-items: center; width: 100%; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+.sw.lh { background: var(--lh); border-radius: 3px; } .sw.third { background: var(--third); } .sw.seventh { background: var(--seventh); }
+
+section.sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 12px; }
+.sheet-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: center; }
+.sheet-head h2 { margin: 0; font-size: 1.15rem; color: var(--accent); }
+.sheet-head h2 small { font-weight: 400; color: var(--muted); font-size: 0.95rem; }
+.howto { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; max-width: 75ch; }
+.note { font-size: 0.85rem; color: var(--muted); margin: 0; }
+
+/* Keyboard diagram */
+.kb svg { width: 100%; height: auto; display: block; }
+.names { font: 600 0.78rem var(--mono); text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+.names b { color: var(--ink); font-weight: 600; }
+
+/* Chord key (one big keyboard per chord) */
+.chords { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.chord { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; display: grid; gap: 4px; background: var(--bg); }
+.chord .sym { font-family: var(--display); font-size: 1.5rem; line-height: 1.1; }
+.chord .how { font-size: 0.78rem; color: var(--muted); }
+
+/* Bar chart */
+.sec-lab { font: 700 0.9rem var(--body); color: var(--accent); margin: 6px 0 0; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.bar { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 8px 8px; display: grid; gap: 2px; min-width: 0; align-content: start; }
+.bar .num { font-size: 0.7rem; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
+.bar .chg { font-weight: 600; }
+.bar .sym { font-family: var(--display); font-size: 1.4rem; text-align: center; line-height: 1.1; }
+
+/* Printable sheet */
+.paper-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); padding: 12px; }
+.paper { width: 7.6in; margin: 0 auto; background: var(--paper); padding: 0.3in; display: grid; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.cs-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
+.cs-title h3 { font-family: var(--display); font-size: 1.7rem; margin: 0; line-height: 1; }
+.cs-title span { font-size: 0.75rem; color: var(--muted); }
+.cs-row { display: grid; grid-template-columns: 1.6em repeat(8, minmax(0, 1fr)); border-bottom: 1px solid var(--line); }
+.cs-row .lab { font: 700 0.85rem var(--body); color: var(--accent); display: grid; place-items: center; }
+.cs-bar { border-left: 1px solid var(--line); min-width: 0; padding: 3px 4px 5px; }
+.cs-bar.phrase { border-left: 2px solid var(--ink); }
+.cs-bar .n { font-size: 0.55rem; color: var(--muted); }
+.cs-bar .sym { font-family: var(--display); font-size: 1.05rem; text-align: center; line-height: 1.15; white-space: nowrap; }
+.cs-bar .alt { font-size: 0.55rem; color: var(--muted); text-align: center; }
+.cs-key-h { font: 700 0.8rem var(--body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin: 4px 0 0; }
+.cs-key { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 10px; }
+.cs-key .cell { display: grid; gap: 1px; text-align: center; }
+.cs-key .sym { font-family: var(--display); font-size: 1.05rem; line-height: 1.1; }
+.cs-key .names { font-size: 0.62rem; }
+.cs-foot { font-size: 0.7rem; color: var(--muted); margin: 0; display: grid; gap: 2px; }
+.cs-legend { display: flex; gap: 12px; font-size: 0.65rem; color: var(--muted); flex-wrap: wrap; }
+.cs-legend .sw { width: 9px; height: 9px; }
+
+@media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } h1 { font-size: 1.9rem; } }
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fff; --paper: #fff; --ink: #000; --muted: #555; --line: #999; --accent: #1f4e79;
+    --lh: #1f4e79; --third: #c26a12; --seventh: #1e7f63; --white-key: #fff; --black-key: #222; --key-edge: #888; --dot-text: #fff; color-scheme: light;
+  }
+  @page { size: letter; margin: 0.45in; }
+  body { padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .wrap > :not(#cheat) { display: none !important; }
+  #cheat { border: 0; padding: 0; display: block; }
+  #cheat > :not(.paper-scroll) { display: none !important; }
+  .paper-scroll { border: 0; padding: 0; overflow: visible; background: none; }
+  .paper { box-shadow: none; padding: 0; width: auto; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>The Girl from Ipanema · Piano</h1>
+      <p class="sub">Key of <span id="keyLabel">F</span> · 40 bars, A – A – Bridge – A · Guitar chart: <a href="/ipanema/">/ipanema</a></p>
+      <div class="keypick"><label for="keySel">Key</label> <select id="keySel"></select></div>
+    </div>
+    <div><button type="button" class="primary" id="printBtn">Print cheat sheet</button></div>
+    <div class="legend">
+      <span><i class="sw lh"></i>Left hand: root</span>
+      <span><i class="sw third"></i>Right hand: 3rd</span>
+      <span><i class="sw seventh"></i>Right hand: 7th</span>
+      <span>Numbers on the keys are fingers (1 = thumb, 5 = pinky). ▲ marks middle C.</span>
+    </div>
+  </header>
+
+  <section class="sheet">
+    <div class="sheet-head"><h2>How to play it</h2></div>
+    <ol class="howto">
+      <li>Each chord is just <b>3 keys</b>: one note in the left hand, two in the right.</li>
+      <li>Press all three at the start of each bar and let them ring. That's the whole part.</li>
+      <li>The right hand barely moves. Each bar tells you how many right-hand keys change.</li>
+      <li>Once that's easy, play the right hand again in the middle of the bar for a bossa feel.</li>
+    </ol>
+  </section>
+
+  <section class="sheet" id="cheat">
+    <div class="sheet-head"><h2>One-page cheat sheet <small>(prints on one page)</small></h2></div>
+    <div class="paper-scroll"><div class="paper" id="paper"></div></div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet-head"><h2>The chords <small id="chordsSub"></small></h2></div>
+    <div class="chords" id="chordKey"></div>
+  </section>
+
+  <section class="sheet">
+    <div class="sheet-head"><h2>Bar by bar</h2></div>
+    <div id="bars"></div>
+    <p class="note" id="formNote"></p>
+  </section>
+</div>
+
+<script id="core">
+// ---- Song (as written in F) ----
+const HOME = {letter: "F", pc: 5};
+const CHORDS = { // [letter, root pitch class, quality] in F
+  "Fmaj7": ["F", 5, "maj7"], "G7": ["G", 7, "7"], "Gm7": ["G", 7, "m7"], "Gb7": ["G", 6, "7"],
+  "Gbmaj7": ["G", 6, "maj7"], "B7": ["B", 11, "7"], "Gbm7": ["G", 6, "m7"], "D7": ["D", 2, "7"],
+  "Eb7": ["E", 3, "7"], "Am7": ["A", 9, "m7"]
+};
+const G711 = {k: "Gb7", s: "7♯11"};
+const A1 = ["Fmaj7", "Fmaj7", "G7", "G7", "Gm7", G711, "Fmaj7", G711];
+const A2 = ["Fmaj7", "Fmaj7", "G7", "G7", "Gm7", G711, "Fmaj7", "Fmaj7"];
+const B_BARS = ["Gbmaj7", "Gbmaj7", "B7", "B7", "Gbm7", "Gbm7", "D7", "D7",
+  "Gm7", "Gm7", "Eb7", "Eb7", "Am7", {k: "D7", s: "7♭9"}, "Gm7", G711];
+const A_LAST = A1.slice(0, 7).concat([{k: "Fmaj7", alt: true}]);
+const TAG_BARS = ["Gm7", G711, "Fmaj7", "Fmaj7"];
+const SECTIONS = [["A", A1], ["A", A2], ["B", B_BARS], ["A", A_LAST], ["T", TAG_BARS]];
+
+// ---- Keys and spelling ----
+const KEYS = [
+  {id: "G", letter: "G", pc: 7}, {id: "Ab", letter: "A", pc: 8}, {id: "A", letter: "A", pc: 9},
+  {id: "Bb", letter: "B", pc: 10}, {id: "B", letter: "B", pc: 11}, {id: "C", letter: "C", pc: 0},
+  {id: "Db", letter: "D", pc: 1}, {id: "D", letter: "D", pc: 2}, {id: "Eb", letter: "E", pc: 3},
+  {id: "E", letter: "E", pc: 4}, {id: "F", letter: "F", pc: 5}
+];
+let KEY = "F";
+const LET = "CDEFGAB", NAT = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
+const ACC = {0: "", 1: "♯", 2: "𝄪", 11: "♭", 10: "𝄫"};
+const SUF = {maj7: "maj7", m7: "m7", "7": "7"};
+const keyObj = () => KEYS.find(x => x.id === KEY);
+const semis = () => (keyObj().pc - HOME.pc + 12) % 12;
+function rootLetter(letter) { return LET[(LET.indexOf(letter) + LET.indexOf(keyObj().letter) - LET.indexOf(HOME.letter) + 14) % 7]; }
+function spell(L, pc) { return L + ACC[(pc - NAT[L] + 120) % 12]; }
+// Key names for a beginner: no double sharps/flats and no F♭, C♭, E♯, B♯ (use the plain white key instead).
+const PLAIN = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
+function keySpell(L, pc) { const n = spell(L, pc); return /𝄪|𝄫|F♭|C♭|E♯|B♯/.test(n) ? PLAIN[pc] : n; }
+function chordRoot(k) { const [letter, pc] = CHORDS[k]; return {L: rootLetter(letter), pc: (pc + semis()) % 12}; }
+function nameOf(k, suf) { const r = chordRoot(k); return spell(r.L, r.pc) + (suf === undefined ? SUF[CHORDS[k][2]] : suf); }
+const keyName = () => spell(rootLetter(HOME.letter), keyObj().pc);
+
+// ---- Voicings: left hand root, right hand 3rd + 7th, placed to move as little as possible ----
+function tones(k) {
+  const q = CHORDS[k][2], r = chordRoot(k), i = LET.indexOf(r.L);
+  const third = (r.pc + (q === "m7" ? 3 : 4)) % 12, sev = (r.pc + (q === "maj7" ? 11 : 10)) % 12;
+  return {root: {pc: r.pc, name: keySpell(r.L, r.pc)},
+          third: {pc: third, name: keySpell(LET[(i + 2) % 7], third), iv: q === "m7" ? "b3" : "3"},
+          sev: {pc: sev, name: keySpell(LET[(i + 6) % 7], sev), iv: q === "maj7" ? "7" : "b7"}};
+}
+const LH_LOW = 48; // C3: the left-hand root sits in the octave C3–B3
+function candidates(k) {
+  const t = tones(k), lh = LH_LOW + t.root.pc, out = [];
+  for (let low = 57; low <= 70; low++) {
+    [[t.third, t.sev], [t.sev, t.third]].forEach(([a, b]) => {
+      if (low % 12 !== a.pc) return;
+      let high = low + ((b.pc - a.pc + 12) % 12 || 12);
+      if (low - lh < 3 || high > 76) return;
+      out.push({lh, rh: [{midi: low, ...a}, {midi: high, ...b}]});
+    });
+  }
+  return out;
+}
+const FORM = [];
+SECTIONS.forEach(([, bars]) => bars.forEach(b => FORM.push(typeof b === "object" ? b.k : b)));
+const _cache = {};
+function voicings() {
+  if (_cache[KEY]) return _cache[KEY];
+  const ks = Object.keys(CHORDS), C = {}, sel = {};
+  ks.forEach(k => { C[k] = candidates(k); let best = 0, bd = 1e9;
+    C[k].forEach((c, i) => { const d = Math.abs(c.rh[0].midi - 62); if (d < bd) { bd = d; best = i; } }); sel[k] = best; });
+  const cost = () => { let c = 0, prev = null;
+    FORM.forEach(k => { const v = C[k][sel[k]];
+      if (prev) c += Math.abs(v.rh[0].midi - prev.rh[0].midi) + Math.abs(v.rh[1].midi - prev.rh[1].midi);
+      c += Math.abs(v.rh[0].midi - 63) * 0.15; prev = v; });
+    return c; };
+  for (let pass = 0; pass < 6; pass++) ks.forEach(k => {
+    let best = sel[k], bc = Infinity;
+    C[k].forEach((_, i) => { sel[k] = i; const c = cost(); if (c < bc) { bc = c; best = i; } });
+    sel[k] = best;
+  });
+  const res = {};
+  ks.forEach(k => { const v = C[k][sel[k]], gap = v.rh[1].midi - v.rh[0].midi;
+    v.rh[0].finger = 1; v.rh[1].finger = gap <= 4 ? 3 : gap <= 6 ? 4 : 5; v.lhFinger = 5; res[k] = v; });
+  return (_cache[KEY] = res);
+}
+function setKey(k) { KEY = k; }
+if (typeof module !== "undefined") module.exports = {CHORDS, KEYS, FORM, voicings, setKey, nameOf, tones};
+</script>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent, text) {
+  const n = document.createElementNS(NS, tag);
+  for (const a in attrs) n.setAttribute(a, attrs[a]);
+  if (text !== undefined) n.textContent = text;
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function h(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+const isBlack = m => [1, 3, 6, 8, 10].includes(m % 12);
+const KB_LO = 48, KB_HI = 76; // C3 .. E5
+
+// Keyboard from C3 to E5 with the voicing's keys marked: color = role, number = finger.
+function keyboard(v) {
+  const whites = []; for (let m = KB_LO; m <= KB_HI; m++) if (!isBlack(m)) whites.push(m);
+  const ww = 14, wh = 58, bw = 9, bh = 36, W = whites.length * ww, H = wh + 12;
+  const svg = el("svg", {viewBox: `0 0 ${W + 2} ${H}`, role: "img",
+    "aria-label": `Left hand ${v.lhName}, right hand ${v.rh.map(r => r.name).join(" and ")}`});
+  const xOf = m => { if (!isBlack(m)) return 1 + whites.indexOf(m) * ww; return 1 + whites.indexOf(m - 1) * ww + ww - bw / 2; };
+  const marks = new Map();
+  marks.set(v.lh, {col: "var(--lh)", f: v.lhFinger});
+  v.rh.forEach(r => marks.set(r.midi, {col: r.iv.includes("3") ? "var(--third)" : "var(--seventh)", f: r.finger}));
+  whites.forEach(m => {
+    const mk = marks.get(m), x = xOf(m);
+    el("rect", {x, y: 1, width: ww, height: wh, rx: 2, fill: mk ? mk.col : "var(--white-key)", stroke: "var(--key-edge)", "stroke-width": 0.8}, svg);
+    if (mk) el("text", {x: x + ww / 2, y: wh - 6, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
+    if (m === 60) el("text", {x: x + ww / 2, y: H - 1, "text-anchor": "middle", "font-size": 8, fill: "var(--muted)"}, svg, "▲");
+  });
+  for (let m = KB_LO; m <= KB_HI; m++) if (isBlack(m)) {
+    const mk = marks.get(m), x = xOf(m);
+    el("rect", {x, y: 1, width: bw, height: bh, rx: 1.5, fill: mk ? mk.col : "var(--black-key)", stroke: mk ? "var(--black-key)" : "none", "stroke-width": mk ? 1.2 : 0}, svg);
+    if (mk) el("text", {x: x + bw / 2, y: bh - 5, "text-anchor": "middle", "font-size": 8.5, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
+  }
+  return svg;
+}
+function full(k) {
+  const v = voicings()[k], t = tones(k);
+  return {lh: v.lh, lhName: t.root.name, lhFinger: v.lhFinger, rh: v.rh};
+}
+function namesLine(v) {
+  const d = h("div", "names");
+  d.innerHTML = `LH <b>${v.lhName}</b> · RH <b>${v.rh[0].name}</b> + <b>${v.rh[1].name}</b>`;
+  return d;
+}
+function barItems(b) {
+  if (Array.isArray(b)) return b.map(k => ({k, d: nameOf(k)}));
+  if (typeof b === "object") return [{k: b.k, d: nameOf(b.k, b.s), alt: b.alt}];
+  return [{k: b, d: nameOf(b)}];
+}
+const altText = () => `${nameOf("Gb7", "7♯11")} to go around again`;
+
+function renderPaper() {
+  const p = document.getElementById("paper"); p.textContent = "";
+  const t = h("div", "cs-title"); const left = h("div"); left.appendChild(h("h3", "", "The Girl from Ipanema · Piano"));
+  t.append(left, h("span", "", `Key of ${keyName()} · A – A – Bridge – A, written out`)); p.appendChild(t);
+  const lines = h("div"); let n = 0;
+  SECTIONS.forEach(([label, bars]) => {
+    for (let r = 0; r < bars.length; r += 8) {
+      const row = h("div", "cs-row"); row.appendChild(h("div", "lab", r ? "" : label));
+      bars.slice(r, r + 8).forEach((b, j) => {
+        n++; const it = barItems(b)[0];
+        const cell = h("div", "cs-bar" + (j === 4 ? " phrase" : ""));
+        cell.append(h("div", "n", String(n)), h("div", "sym", it.d));
+        if (it.alt) cell.appendChild(h("div", "alt", altText()));
+        row.appendChild(cell);
+      });
+      lines.appendChild(row);
+    }
+  });
+  p.appendChild(lines);
+  p.appendChild(h("p", "cs-key-h", "The chords"));
+  const key = h("div", "cs-key");
+  Object.keys(CHORDS).forEach(k => {
+    const v = full(k), c = h("div", "cell"), kb = h("div", "kb");
+    kb.appendChild(keyboard(v)); c.append(h("div", "sym", nameOf(k)), kb, namesLine(v)); key.appendChild(c);
+  });
+  p.appendChild(key);
+  const lg = h("div", "cs-legend");
+  lg.innerHTML = '<span><i class="sw lh"></i> LH root</span><span><i class="sw third"></i> RH 3rd</span><span><i class="sw seventh"></i> RH 7th</span><span>Numbers = fingers · ▲ = middle C</span>';
+  p.appendChild(lg);
+  const f = h("div", "cs-foot");
+  f.innerHTML = `<span><b>Form:</b> A (bars 1–8) → A (9–16) → Bridge (17–32) → last A (33–40), ending on ${nameOf("Fmaj7")}. <b>T = tag</b> (optional): repeat the last 4 bars to fade out.</span><span>${nameOf("Gb7", "7♯11")} → play ${nameOf("Gb7")}. ${nameOf("D7", "7♭9")} → play ${nameOf("D7")}. Press all 3 keys at the start of each bar.</span>`;
+  p.appendChild(f);
+}
+function renderChords() {
+  document.getElementById("chordsSub").textContent = `(key of ${keyName()})`;
+  const box = document.getElementById("chordKey"); box.textContent = "";
+  Object.keys(CHORDS).forEach(k => {
+    const v = full(k), c = h("div", "chord"), kb = h("div", "kb");
+    kb.appendChild(keyboard(v));
+    c.append(h("div", "sym", nameOf(k)), kb, namesLine(v),
+      h("div", "how", `Left hand finger 5 on ${v.lhName}. Right hand thumb on ${v.rh[0].name}, finger ${v.rh[1].finger} on ${v.rh[1].name}.`));
+    box.appendChild(c);
+  });
+}
+function renderBars() {
+  const box = document.getElementById("bars"); box.textContent = "";
+  const titles = {A: "A section", B: "Bridge", T: "Tag (optional)"};
+  let n = 0, prev = null, aCount = 0;
+  SECTIONS.forEach(([label, bars]) => {
+    if (label === "A") aCount++;
+    const t = label === "A" ? (aCount === 3 ? "Last A" : `A section ${aCount}`) : titles[label];
+    box.appendChild(h("p", "sec-lab", t));
+    const grid = h("div", "grid");
+    bars.forEach(b => {
+      n++; const it = barItems(b)[0], v = full(it.k);
+      const bar = h("div", "bar"), num = h("div", "num");
+      let chg = "";
+      if (prev) { const was = new Set(prev.rh.map(r => r.midi)); const moved = v.rh.filter(r => !was.has(r.midi)).length;
+        chg = moved === 0 ? "RH stays" : moved === 1 ? "RH: 1 key moves" : "RH: both move"; }
+      num.append(h("span", "", String(n)), h("span", "chg", chg));
+      const kb = h("div", "kb"); kb.appendChild(keyboard(v));
+      bar.append(num, h("div", "sym", it.d), kb, namesLine(v));
+      if (it.alt) bar.appendChild(h("div", "names", `Last time: end here. ${altText()}.`));
+      grid.appendChild(bar); prev = v;
+    });
+    box.appendChild(grid);
+  });
+  document.getElementById("formNote").textContent = `${nameOf("Gb7", "7♯11")} → play ${nameOf("Gb7")}; ${nameOf("D7", "7♭9")} → play ${nameOf("D7")}. The tag is optional: repeat the last 4 bars to fade out.`;
+}
+function renderAll() {
+  document.getElementById("keyLabel").textContent = keyName();
+  renderPaper(); renderChords(); renderBars();
+}
+const keySel = document.getElementById("keySel");
+KEYS.forEach(x => { KEY = x.id; const o = document.createElement("option"); o.value = x.id; o.textContent = keyName() + (x.id === "F" ? "  (Real Book key)" : ""); keySel.appendChild(o); });
+try { const sk = localStorage.getItem("ipa-piano-key"); KEY = (sk && KEYS.some(x => x.id === sk)) ? sk : "F"; } catch (e) { KEY = "F"; }
+keySel.value = KEY;
+keySel.addEventListener("change", () => { setKey(keySel.value); try { localStorage.setItem("ipa-piano-key", KEY); } catch (e) {} renderAll(); });
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+renderAll();
+</script>
+</body>
+</html>
