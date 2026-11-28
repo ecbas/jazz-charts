@@ -82,6 +82,8 @@ section.sheet { background: var(--paper); border: 1px solid var(--line); border-
 .bar .num { font-size: 0.7rem; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
 .bar .chg { font-weight: 600; }
 .bar .sym { font-family: var(--display); font-size: 1.4rem; text-align: center; line-height: 1.1; }
+.bar.repeat .sym { color: var(--muted); }
+.hold { font-size: 0.8rem; color: var(--muted); text-align: center; border: 1px dashed var(--line); border-radius: 6px; padding: 10px 8px; margin-top: 4px; }
 
 /* Printable sheet */
 .paper-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); padding: 12px; }
@@ -134,6 +136,7 @@ section.sheet { background: var(--paper); border: 1px solid var(--line); border-
       <span><i class="sw lh"></i>Left hand: root</span>
       <span><i class="sw third"></i>Right hand: 3rd</span>
       <span><i class="sw seventh"></i>Right hand: 7th</span>
+      <span><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--muted)" stroke-width="1.8"/></svg>Hollow ring (bar by bar) = where that finger was in the chord before</span>
       <span>Left keyboard = left hand, right keyboard = right hand (starts at middle C). Number on a key = finger (1 thumb … 5 pinky). Small word under it = which note of the chord.</span>
     </div>
   </header>
@@ -266,12 +269,17 @@ const isBlack = m => [1, 3, 6, 8, 10].includes(m % 12);
 const IVWORD = {"3": "3rd", "b3": "♭3rd", "7": "7th", "b7": "♭7th"};
 // Two small keyboards: left hand (C3–B3) and right hand (middle C to G5).
 // Colored key = press it; number on the key = finger; small words under it = which note of the chord.
-function keyboard(v) {
+// prev (optional): the chord before. Keys it used that this chord doesn't get a hollow ring in that finger's color.
+function markMap(v) {
+  const m = new Map();
+  m.set(v.lh, {col: "var(--lh)", f: v.lhFinger, name: v.lhName, iv: "root"});
+  v.rh.forEach(r => m.set(r.midi, {col: r.iv.includes("3") ? "var(--third)" : "var(--seventh)", f: r.finger, name: r.name, iv: IVWORD[r.iv]}));
+  return m;
+}
+function keyboard(v, prev) {
   const ww = 14, wh = 56, bw = 9, bh = 34, gap = 16, top = 14;
   const boards = [{lo: 48, hi: 59, label: "Left hand"}, {lo: 60, hi: 79, label: "Right hand"}];
-  const marks = new Map();
-  marks.set(v.lh, {col: "var(--lh)", f: v.lhFinger, name: v.lhName, iv: "root"});
-  v.rh.forEach(r => marks.set(r.midi, {col: r.iv.includes("3") ? "var(--third)" : "var(--seventh)", f: r.finger, name: r.name, iv: IVWORD[r.iv]}));
+  const marks = markMap(v), ghosts = prev ? markMap(prev) : new Map();
   let ox = 1, W = 0; const parts = [];
   boards.forEach(bd => { const wh2 = []; for (let m = bd.lo; m <= bd.hi; m++) if (!isBlack(m)) wh2.push(m); parts.push({...bd, whites: wh2, ox}); ox += wh2.length * ww + gap; });
   W = ox - gap + 1;
@@ -290,6 +298,10 @@ function keyboard(v) {
       const mk = marks.get(m), x = xOf(m);
       el("rect", {x, y: top, width: bw, height: bh, rx: 1.5, fill: mk ? mk.col : "var(--black-key)", stroke: mk ? "var(--black-key)" : "none", "stroke-width": mk ? 1.2 : 0}, svg);
       if (mk) el("text", {x: x + bw / 2, y: top + bh - 5, "text-anchor": "middle", "font-size": 8.5, "font-weight": 700, fill: "var(--dot-text)", "font-family": "IBM Plex Sans, sans-serif"}, svg, String(mk.f));
+    }
+    for (let m = bd.lo; m <= bd.hi; m++) { const g = ghosts.get(m); if (!g || marks.has(m)) continue;
+      const blk = isBlack(m), cx = xOf(m) + (blk ? bw : ww) / 2;
+      el("circle", {cx, cy: blk ? top + bh - 8 : top + wh - 10, r: blk ? 3.4 : 4.8, fill: "none", stroke: g.col, "stroke-width": 1.8}, svg);
     }
     for (let m = bd.lo; m <= bd.hi; m++) { const mk = marks.get(m); if (!mk) continue;
       const cx = xOf(m) + (isBlack(m) ? bw : ww) / 2;
@@ -362,7 +374,7 @@ function renderChords() {
 function renderBars() {
   const box = document.getElementById("bars"); box.textContent = "";
   const titles = {A: "A section", B: "Bridge", T: "Tag (optional)"};
-  let n = 0, prev = null, aCount = 0;
+  let n = 0, prev = null, prevK = null, since = 0, aCount = 0;
   SECTIONS.forEach(([label, bars]) => {
     if (label === "A") aCount++;
     const t = label === "A" ? (aCount === 3 ? "Last A" : `A section ${aCount}`) : titles[label];
@@ -371,14 +383,22 @@ function renderBars() {
     bars.forEach(b => {
       n++; const it = barItems(b)[0], v = full(it.k);
       const bar = h("div", "bar"), num = h("div", "num");
-      let chg = "";
-      if (prev) { const was = new Set(prev.rh.map(r => r.midi)); const moved = v.rh.filter(r => !was.has(r.midi)).length;
-        chg = moved === 0 ? "RH stays" : moved === 1 ? "RH: 1 key moves" : "RH: both move"; }
-      num.append(h("span", "", String(n)), h("span", "chg", chg));
-      const kb = h("div", "kb"); kb.appendChild(keyboard(v));
-      bar.append(num, h("div", "sym", it.d), kb);
+      if (it.k === prevK) {
+        // Same chord as the bar before: no new diagram, just keep holding.
+        num.append(h("span", "", String(n)), h("span", "chg", ""));
+        bar.classList.add("repeat");
+        bar.append(num, h("div", "sym", it.d), h("div", "hold", `Same chord as bar ${since}. Keep holding, or play it again.`));
+      } else {
+        let chg = "";
+        if (prev) { const was = new Set(prev.rh.map(r => r.midi)); const moved = v.rh.filter(r => !was.has(r.midi)).length;
+          chg = moved === 0 ? "RH stays" : moved === 1 ? "RH: 1 key moves" : "RH: both move"; }
+        num.append(h("span", "", String(n)), h("span", "chg", chg));
+        const kb = h("div", "kb"); kb.appendChild(keyboard(v, prev));
+        bar.append(num, h("div", "sym", it.d), kb);
+        prev = v; prevK = it.k; since = n;
+      }
       if (it.alt) bar.appendChild(h("div", "names", `Last time: end here. ${altText()}.`));
-      grid.appendChild(bar); prev = v;
+      grid.appendChild(bar);
     });
     box.appendChild(grid);
   });
